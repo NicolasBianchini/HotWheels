@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  
+  .font-racing {
+    font-family: 'Racing Sans One', cursive;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-hotwheel-primary hover:bg-hotwheel-red text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-transparent;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent hover:bg-hotwheel-gray-50 text-hotwheel-gray-700 hover:text-hotwheel-gray-900 font-semibold py-3 px-6 rounded-lg border border-hotwheel-gray-300 hover:border-hotwheel-gray-400 transition-all duration-300;
+  }
+
+  .btn-outline {
+    @apply bg-transparent hover:bg-hotwheel-primary text-hotwheel-primary hover:text-white font-semibold py-3 px-6 rounded-lg border-2 border-hotwheel-primary transition-all duration-300;
+  }
+  
+  .card-hover {
+    @apply transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl;
+  }
+  
+  .card-corporate {
+    @apply bg-white rounded-xl shadow-sm hover:shadow-lg border border-hotwheel-gray-200 transition-all duration-300;
+  }
+  
+  .gradient-primary {
+    @apply bg-gradient-to-r from-hotwheel-primary via-hotwheel-red to-hotwheel-accent;
+  }
+  
+  .gradient-dark {
+    @apply bg-gradient-to-r from-hotwheel-slate via-hotwheel-dark to-hotwheel-gray-900;
+  }
+
+  .gradient-subtle {
+    @apply bg-gradient-to-br from-hotwheel-gray-50 to-hotwheel-gray-100;
+  }
+
+  .text-corporate {
+    @apply text-hotwheel-gray-900 leading-relaxed;
+  }
+
+  .text-subtitle {
+    @apply text-hotwheel-gray-600 leading-relaxed;
+  }
+
+  .section-padding {
+    @apply py-16 px-4 sm:px-6 lg:px-8;
+  }
+}
