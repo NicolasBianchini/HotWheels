@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Star, Shield, Package } from 'lucide-react';
-import { hotWheelsCars } from '../data/cars';
+import { useProducts } from '../contexts/ProductsContext';
 import type { CartItem } from '../types';
 
 interface ProductDetailProps {
@@ -9,7 +9,8 @@ interface ProductDetailProps {
 
 const ProductDetail = ({ addToCart }: ProductDetailProps) => {
     const { id } = useParams<{ id: string }>();
-    const car = hotWheelsCars.find(c => c.id === id);
+    const { products } = useProducts();
+    const car = products.find(c => c.id === id);
 
     if (!car) {
         return (

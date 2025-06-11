@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { hotWheelsCars } from '../data/cars';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useProducts } from '../contexts/ProductsContext';
 import type { HotWheelsCar, CartItem } from '../types';
 
 interface CatalogProps {
@@ -8,16 +8,55 @@ interface CatalogProps {
 }
 
 const Catalog = ({ addToCart }: CatalogProps) => {
-    const [filteredCars, setFilteredCars] = useState(hotWheelsCars);
+    const [searchParams] = useSearchParams();
+    const { products, loading } = useProducts();
+    const [filteredCars, setFilteredCars] = useState<HotWheelsCar[]>([]);
     const [filter, setFilter] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Function to filter cars based on search term
+    const filterCarsBySearch = (cars: HotWheelsCar[], search: string): HotWheelsCar[] => {
+        if (!search.trim()) return cars;
+
+        const searchLower = search.toLowerCase().trim();
+        return cars.filter(car =>
+            car.name.toLowerCase().includes(searchLower) ||
+            car.series.toLowerCase().includes(searchLower) ||
+            car.description.toLowerCase().includes(searchLower) ||
+            car.color.toLowerCase().includes(searchLower) ||
+            car.category.toLowerCase().includes(searchLower) ||
+            car.rarity.toLowerCase().includes(searchLower)
+        );
+    };
+
+    // Function to apply all filters
+    const applyFilters = () => {
+        let cars = products;
+
+        // Apply category filter
+        if (filter !== 'all') {
+            cars = cars.filter((car: HotWheelsCar) => car.category === filter);
+        }
+
+        // Apply search filter
+        cars = filterCarsBySearch(cars, searchTerm);
+
+        setFilteredCars(cars);
+    };
+
+    // Handle search from URL params
+    useEffect(() => {
+        const urlSearchTerm = searchParams.get('search') || '';
+        setSearchTerm(urlSearchTerm);
+    }, [searchParams]);
+
+    // Apply filters whenever filter or searchTerm changes
+    useEffect(() => {
+        applyFilters();
+    }, [filter, searchTerm]);
 
     const handleFilterChange = (newFilter: string) => {
         setFilter(newFilter);
-        if (newFilter === 'all') {
-            setFilteredCars(hotWheelsCars);
-        } else {
-            setFilteredCars(hotWheelsCars.filter(car => car.category === newFilter));
-        }
     };
 
     const handleAddToCart = (car: HotWheelsCar) => {
@@ -25,13 +64,50 @@ const Catalog = ({ addToCart }: CatalogProps) => {
         alert(`${car.name} adicionado ao carrinho!`);
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-hotwheel-gray-25 flex items-center justify-center">
+                <div className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 p-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-hotwheel-primary mx-auto"></div>
+                    <p className="text-hotwheel-gray-600 mt-4 text-center">Carregando produtos...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-hotwheel-gray-25">
             <div className="container mx-auto px-4 section-padding">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-corporate mb-4">Catálogo Completo</h1>
-                    <p className="text-subtitle text-lg max-w-2xl mx-auto">Explore nossa coleção exclusiva de Hot Wheels raros e colecionáveis, cuidadosamente selecionados para entusiastas e colecionadores.</p>
+                    <h1 className="text-4xl font-bold text-corporate mb-4">
+                        {searchTerm ? `Resultados para "${searchTerm}"` : 'Catálogo Completo'}
+                    </h1>
+                    <p className="text-subtitle text-lg max-w-2xl mx-auto">
+                        {searchTerm
+                            ? `Encontramos ${filteredCars.length} produto${filteredCars.length !== 1 ? 's' : ''} para sua busca.`
+                            : 'Explore nossa coleção exclusiva de Hot Wheels raros e colecionáveis, cuidadosamente selecionados para entusiastas e colecionadores.'
+                        }
+                    </p>
                 </div>
+
+                {/* Search Info */}
+                {searchTerm && (
+                    <div className="mb-8">
+                        <div className="bg-hotwheel-primary/10 border border-hotwheel-primary/20 rounded-lg p-4">
+                            <div className="flex items-center justify-between">
+                                <p className="text-hotwheel-primary font-medium">
+                                    Buscando por: "{searchTerm}"
+                                </p>
+                                <Link
+                                    to="/catalogo"
+                                    className="text-hotwheel-primary hover:text-hotwheel-primary/80 text-sm font-medium"
+                                >
+                                    Limpar busca
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Filters */}
                 <div className="mb-12">
@@ -143,7 +219,26 @@ const Catalog = ({ addToCart }: CatalogProps) => {
 
                 {filteredCars.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-hotwheel-gray-500 text-lg">Nenhum produto encontrado com os filtros selecionados.</p>
+                        <div className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 p-12 max-w-md mx-auto">
+                            <div className="w-16 h-16 bg-hotwheel-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span className="text-3xl">🔍</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-corporate mb-4">Nenhum produto encontrado</h3>
+                            <p className="text-hotwheel-gray-500 mb-6">
+                                {searchTerm
+                                    ? `Não encontramos produtos que correspondam à sua busca "${searchTerm}".`
+                                    : 'Nenhum produto encontrado com os filtros selecionados.'
+                                }
+                            </p>
+                            {searchTerm && (
+                                <Link
+                                    to="/catalogo"
+                                    className="btn-primary inline-block"
+                                >
+                                    Ver todos os produtos
+                                </Link>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

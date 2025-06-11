@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Search, Menu, User, LogOut, Settings } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
     cartCount: number;
@@ -10,12 +11,32 @@ interface HeaderProps {
 const Header = ({ cartCount }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const [searchTerm, setSearchTerm] = useState('');
+    const { user, logout, isAdmin } = useAuth();
     const userMenuRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
         setIsUserMenuOpen(false);
+    };
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            navigate(`/catalogo?search=${encodeURIComponent(searchTerm.trim())}`);
+            setIsMenuOpen(false); // Close mobile menu if open
+        }
+    };
+
+    const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch(e);
+        }
     };
 
     // Close dropdown when clicking outside
@@ -75,14 +96,17 @@ const Header = ({ cartCount }: HeaderProps) => {
 
                         {/* Search bar */}
                         <div className="hidden md:flex flex-1 max-w-md mx-6">
-                            <div className="relative w-full">
+                            <form onSubmit={handleSearch} className="relative w-full">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-hotwheel-gray-400 w-4 h-4" />
                                 <input
                                     type="text"
                                     placeholder="Buscar carrinhos..."
+                                    value={searchTerm}
+                                    onChange={handleSearchInputChange}
+                                    onKeyPress={handleKeyPress}
                                     className="w-full pl-9 pr-4 py-2.5 border border-hotwheel-gray-300 bg-hotwheel-gray-50 text-hotwheel-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-hotwheel-primary focus:border-hotwheel-primary placeholder-hotwheel-gray-500 transition-all duration-200 text-sm"
                                 />
-                            </div>
+                            </form>
                         </div>
 
                         {/* Right side - Cart, User and Mobile Menu */}
@@ -137,6 +161,16 @@ const Header = ({ cartCount }: HeaderProps) => {
                                                     <Settings className="w-4 h-4 mr-3" />
                                                     Editar Perfil
                                                 </Link>
+                                                {isAdmin() && (
+                                                    <Link
+                                                        to="/admin"
+                                                        onClick={() => setIsUserMenuOpen(false)}
+                                                        className="flex items-center w-full px-4 py-3 text-sm text-hotwheel-gray-700 hover:bg-hotwheel-gray-50 transition-colors border-t border-hotwheel-gray-100"
+                                                    >
+                                                        <Settings className="w-4 h-4 mr-3" />
+                                                        Painel Admin
+                                                    </Link>
+                                                )}
                                                 <button
                                                     onClick={handleLogout}
                                                     className="flex items-center w-full px-4 py-3 text-sm text-hotwheel-gray-700 hover:bg-hotwheel-gray-50 transition-colors"
@@ -181,14 +215,17 @@ const Header = ({ cartCount }: HeaderProps) => {
                     <div className="lg:hidden border-t border-hotwheel-gray-100 py-4">
                         {/* Mobile Search */}
                         <div className="mb-4">
-                            <div className="relative">
+                            <form onSubmit={handleSearch} className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-hotwheel-gray-400 w-4 h-4" />
                                 <input
                                     type="text"
                                     placeholder="Buscar carrinhos..."
+                                    value={searchTerm}
+                                    onChange={handleSearchInputChange}
+                                    onKeyPress={handleKeyPress}
                                     className="w-full pl-9 pr-4 py-2.5 border border-hotwheel-gray-300 bg-hotwheel-gray-50 text-hotwheel-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-hotwheel-primary focus:border-hotwheel-primary placeholder-hotwheel-gray-500 transition-all duration-200 text-sm"
                                 />
-                            </div>
+                            </form>
                         </div>
 
                         {/* Mobile Navigation */}

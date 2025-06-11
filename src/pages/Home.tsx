@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Star, Truck, Shield, Clock } from 'lucide-react';
-import { hotWheelsCars } from '../data/cars';
+import { useProducts } from '../contexts/ProductsContext';
 
 const Home = () => {
-    const featuredCars = hotWheelsCars.filter(car => car.featured);
+    const { products } = useProducts();
+    const featuredCars = products.filter(car => car.featured);
 
     return (
         <div className="min-h-screen bg-hotwheel-gray-25">

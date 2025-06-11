@@ -1,16 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged,
-    updateProfile
+    onAuthStateChanged
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import type { User } from '../types';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 interface AuthContextType {
     user: User | null;
@@ -18,6 +16,7 @@ interface AuthContextType {
     register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    isAdmin: () => boolean;
     loading: boolean;
 }
 
@@ -43,28 +42,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const convertFirebaseUser = async (firebaseUser: FirebaseUser): Promise<User> => {
         try {
             // Try to get additional user data from Firestore
+            console.log('🔍 Buscando dados do usuário no Firestore:', firebaseUser.uid);
             const userDocRef = doc(db, 'users', firebaseUser.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
+                console.log('✅ Dados do usuário encontrados no Firestore:', {
+                    uid: firebaseUser.uid,
+                    name: userData.name,
+                    role: userData.role
+                });
                 return {
                     id: firebaseUser.uid,
                     name: userData.name || firebaseUser.displayName || 'Usuário',
                     email: firebaseUser.email || '',
-                    avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`
+                    avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
+                    role: userData.role || 'user',
+                    createdAt: userData.createdAt,
+                    updatedAt: userData.updatedAt
                 };
+            } else {
+                console.warn('⚠️ Usuário não encontrado no Firestore, criando dados básicos');
             }
         } catch (error) {
-            console.warn('Could not fetch user data from Firestore:', error);
+            console.warn('❌ Erro ao buscar dados do usuário no Firestore:', error);
         }
 
         // Fallback: create basic user from Firebase auth only
+        console.log('🔄 Usando dados básicos do Firebase Auth');
         return {
             id: firebaseUser.uid,
             name: firebaseUser.displayName || 'Usuário',
             email: firebaseUser.email || '',
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
+            role: 'user'
         };
     };
 
@@ -91,55 +103,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const register = async (name: string, email: string, password: string): Promise<void> => {
         try {
             setLoading(true);
-            // Create user with Firebase Auth
-            const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
+            console.log('🔄 Iniciando registro de usuário (Firestore only)...');
 
-            // Update the user's display name
-            await updateProfile(firebaseUser, { displayName: name });
+            // Gerar um ID único para o usuário
+            const userId = crypto.randomUUID();
 
-            // Create user document in Firestore
+            // Criar usuário no Firestore
             const userData = {
                 name,
                 email,
+                password, // ATENÇÃO: senha em texto puro, só para testes!
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-                createdAt: new Date().toISOString()
+                role: 'user',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             };
 
-            await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+            await setDoc(doc(db, 'users', userId), userData);
+            console.log('✅ Usuário salvo no Firestore:', {
+                userId,
+                name,
+                email,
+                role: 'user'
+            });
 
+            // Atualiza o estado local
+            setUser({
+                id: userId,
+                name,
+                email,
+                avatar: userData.avatar,
+                role: 'user',
+                createdAt: userData.createdAt,
+                updatedAt: userData.updatedAt
+            });
         } catch (error) {
-            let message = 'Erro ao criar conta';
-            const errorCode = (error as { code?: string }).code;
-            if (errorCode === 'auth/email-already-in-use') {
-                message = 'Este email já está em uso';
-            } else if (errorCode === 'auth/weak-password') {
-                message = 'A senha deve ter pelo menos 6 caracteres';
-            } else if (errorCode === 'auth/invalid-email') {
-                message = 'Email inválido';
-            }
-            throw new Error(message);
+            console.error('❌ Erro no registro:', error);
+            throw new Error('Erro ao criar conta');
         } finally {
             setLoading(false);
         }
     };
 
+    // Novo login manual (Firestore only)
     const login = async (email: string, password: string): Promise<void> => {
         try {
             setLoading(true);
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            let message = 'Erro ao fazer login';
-            const errorCode = (error as { code?: string }).code;
-            if (errorCode === 'auth/user-not-found') {
-                message = 'Usuário não encontrado';
-            } else if (errorCode === 'auth/wrong-password') {
-                message = 'Senha incorreta';
-            } else if (errorCode === 'auth/invalid-email') {
-                message = 'Email inválido';
-            } else if (errorCode === 'auth/too-many-requests') {
-                message = 'Muitas tentativas. Tente novamente mais tarde';
+            // Buscar usuário pelo email
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('email', '==', email));
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) {
+                throw new Error('Usuário não encontrado');
             }
-            throw new Error(message);
+            const userDoc = snapshot.docs[0];
+            const userData = userDoc.data();
+            if (userData.password !== password) {
+                throw new Error('Senha incorreta');
+            }
+            setUser({
+                id: userDoc.id,
+                name: userData.name,
+                email: userData.email,
+                avatar: userData.avatar,
+                role: userData.role || 'user',
+                createdAt: userData.createdAt,
+                updatedAt: userData.updatedAt
+            });
+        } catch (error) {
+            console.error('❌ Erro no login:', error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -165,12 +198,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const isAdmin = (): boolean => {
+        return user?.role === 'admin';
+    };
+
     const value = {
         user,
         login,
         register,
         logout,
         refreshUser,
+        isAdmin,
         loading
     };
 

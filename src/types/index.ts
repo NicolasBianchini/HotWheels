@@ -24,6 +24,9 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
+    role?: 'user' | 'admin';
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Order {
