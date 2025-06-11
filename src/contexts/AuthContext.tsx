@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import {
-    signOut,
-    onAuthStateChanged
 } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -80,24 +78,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         };
     };
 
-    // Listen for auth state changes
+    // Restaurar usuário do localStorage ao iniciar
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            if (firebaseUser) {
-                try {
-                    const userData = await convertFirebaseUser(firebaseUser);
-                    setUser(userData);
-                } catch (error) {
-                    console.error('Error converting Firebase user:', error);
-                    setUser(null);
-                }
-            } else {
-                setUser(null);
-            }
+        const storedUser = localStorage.getItem('hw_user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
             setLoading(false);
-        });
-
-        return unsubscribe;
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     const register = async (name: string, email: string, password: string): Promise<void> => {
@@ -127,8 +116,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 role: 'user'
             });
 
-            // Atualiza o estado local
-            setUser({
+            // Atualiza o estado local e salva no localStorage
+            const userObj = {
                 id: userId,
                 name,
                 email,
@@ -136,7 +125,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 role: 'user',
                 createdAt: userData.createdAt,
                 updatedAt: userData.updatedAt
-            });
+            } as const;
+            setUser(userObj);
+            localStorage.setItem('hw_user', JSON.stringify(userObj));
         } catch (error) {
             console.error('❌ Erro no registro:', error);
             throw new Error('Erro ao criar conta');
@@ -161,15 +152,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (userData.password !== password) {
                 throw new Error('Senha incorreta');
             }
-            setUser({
+            const userObj = {
                 id: userDoc.id,
                 name: userData.name,
                 email: userData.email,
                 avatar: userData.avatar,
-                role: userData.role || 'user',
+                role: (userData.role === 'admin' ? 'admin' : 'user'),
                 createdAt: userData.createdAt,
                 updatedAt: userData.updatedAt
-            });
+            } as const;
+            setUser(userObj);
+            localStorage.setItem('hw_user', JSON.stringify(userObj));
         } catch (error) {
             console.error('❌ Erro no login:', error);
             throw error;
@@ -180,7 +173,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const logout = async (): Promise<void> => {
         try {
-            await signOut(auth);
+            setUser(null);
+            localStorage.removeItem('hw_user');
         } catch (error) {
             console.error('Error signing out:', error);
             throw new Error('Erro ao fazer logout');
