@@ -1,6 +1,7 @@
 export interface HotWheelsCar {
     id: string;
     name: string;
+    brand: 'Hot Wheels' | 'Mini GT' | 'Auto World' | 'Tarmac Works' | 'Auto Art' | 'Jada' | 'Burago' | 'Almost Real' | 'Pop Race' | 'Tiny' | 'Inno 64';
     series: string;
     year: number;
     price: number;
@@ -8,11 +9,12 @@ export interface HotWheelsCar {
     image: string;
     description: string;
     condition: 'Novo' | 'Usado - Excelente' | 'Usado - Bom' | 'Colecionador';
-    category: 'Mainline' | 'Super Treasure Hunt' | 'Treasure Hunt' | 'Premium' | 'Team Transport' | 'Cargo Carriers';
+    category?: 'Mainline' | 'Super Treasure Hunt' | 'Treasure Hunt' | 'Premium' | 'Team Transport' | 'Cargo Carriers';
     color: string;
     inStock: boolean;
+    stock: number;
     featured?: boolean;
-    rarity: 'Comum' | 'Raro' | 'Super Raro' | 'Treasure Hunt';
+    rarity?: 'Comum' | 'Raro' | 'Super Raro' | 'Treasure Hunt';
 }
 
 export interface CartItem extends HotWheelsCar {
@@ -46,6 +48,7 @@ export interface Order {
 }
 
 export interface SearchFilters {
+    brand?: string;
     category?: string;
     condition?: string;
     priceRange?: [number, number];
@@ -73,4 +76,14 @@ export interface AuthContextType {
     register: (userData: RegisterFormData) => Promise<void>;
     logout: () => void;
     loading: boolean;
+}
+
+export interface Promotion {
+    id: string;
+    title: string;
+    description: string;
+    discountPercentage: number;
+    startDate: string;
+    endDate: string;
+    productIds: string[];
 } 

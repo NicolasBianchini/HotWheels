@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Star, Shield, Package } from 'lucide-react';
 import { useProducts } from '../contexts/ProductsContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import type { CartItem } from '../types';
 
 interface ProductDetailProps {
@@ -10,6 +11,7 @@ interface ProductDetailProps {
 const ProductDetail = ({ addToCart }: ProductDetailProps) => {
     const { id } = useParams<{ id: string }>();
     const { products } = useProducts();
+    const { success } = useNotifications();
     const car = products.find(c => c.id === id);
 
     if (!car) {
@@ -38,7 +40,7 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
 
     const handleAddToCart = () => {
         addToCart({ ...car, quantity: 1 });
-        alert(`${car.name} adicionado ao carrinho!`);
+        success('Produto adicionado ao carrinho!', car.name);
     };
 
     return (

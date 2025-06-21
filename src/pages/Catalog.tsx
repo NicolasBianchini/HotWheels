@@ -1,246 +1,453 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Heart, Filter, X } from 'lucide-react';
 import { useProducts } from '../contexts/ProductsContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 import type { HotWheelsCar, CartItem } from '../types';
 
 interface CatalogProps {
-    addToCart: (product: CartItem) => void;
+    addToCart: (item: CartItem) => void;
 }
 
 const Catalog = ({ addToCart }: CatalogProps) => {
+    const { products, loading, error } = useProducts();
+    const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
     const [searchParams] = useSearchParams();
-    const { products, loading } = useProducts();
-    const [filteredCars, setFilteredCars] = useState<HotWheelsCar[]>([]);
-    const [filter, setFilter] = useState('all');
-    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredProducts, setFilteredProducts] = useState(products);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [sortBy, setSortBy] = useState('name');
+    const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
+    const [selectedYears, setSelectedYears] = useState<string[]>([]);
+    const [priceRange, setPriceRange] = useState({ min: '', max: '' });
 
-    // Function to filter cars based on search term
-    const filterCarsBySearch = (cars: HotWheelsCar[], search: string): HotWheelsCar[] => {
-        if (!search.trim()) return cars;
+    const search = searchParams.get('search') || '';
+    const category = searchParams.get('categoria') || '';
+    const brand = searchParams.get('marca') || '';
 
-        const searchLower = search.toLowerCase().trim();
-        return cars.filter(car =>
-            car.name.toLowerCase().includes(searchLower) ||
-            car.series.toLowerCase().includes(searchLower) ||
-            car.description.toLowerCase().includes(searchLower) ||
-            car.color.toLowerCase().includes(searchLower) ||
-            car.category.toLowerCase().includes(searchLower) ||
-            car.rarity.toLowerCase().includes(searchLower)
+    // Get unique values for filters
+    const brands = [...new Set(products.map(p => p.brand))].sort();
+    const categories = [...new Set(products.filter(p => p.category).map(p => p.category!))].sort();
+    const series = [...new Set(products.map(p => p.series))].sort();
+    const years = [...new Set(products.map(p => p.year.toString()))].sort((a, b) => parseInt(b) - parseInt(a));
+
+    useEffect(() => {
+        let filtered = products;
+
+        // Search filter
+        if (search) {
+            filtered = filtered.filter(product =>
+                product.name.toLowerCase().includes(search.toLowerCase()) ||
+                product.series.toLowerCase().includes(search.toLowerCase()) ||
+                product.description.toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        // Category filter from URL
+        if (category) {
+            filtered = filtered.filter(product => product.category === category);
+        }
+
+        // Brand filter from URL
+        if (brand) {
+            filtered = filtered.filter(product => product.brand.toLowerCase() === brand.toLowerCase());
+        }
+
+        // Brand filter from checkboxes
+        if (selectedBrands.length > 0) {
+            filtered = filtered.filter(product => selectedBrands.includes(product.brand));
+        }
+
+        // Selected categories filter
+        if (selectedCategories.length > 0) {
+            filtered = filtered.filter(product => product.category && selectedCategories.includes(product.category));
+        }
+
+        // Series filter
+        if (selectedSeries.length > 0) {
+            filtered = filtered.filter(product => selectedSeries.includes(product.series));
+        }
+
+        // Year filter
+        if (selectedYears.length > 0) {
+            filtered = filtered.filter(product => selectedYears.includes(product.year.toString()));
+        }
+
+        // Price range filter
+        if (priceRange.min !== '') {
+            filtered = filtered.filter(product => product.price >= parseFloat(priceRange.min));
+        }
+        if (priceRange.max !== '') {
+            filtered = filtered.filter(product => product.price <= parseFloat(priceRange.max));
+        }
+
+        // Sort products
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'name':
+                    return a.name.localeCompare(b.name);
+                case 'price-low':
+                    return a.price - b.price;
+                case 'price-high':
+                    return b.price - a.price;
+                case 'year-new':
+                    return b.year - a.year;
+                case 'year-old':
+                    return a.year - b.year;
+                default:
+                    return 0;
+            }
+        });
+
+        setFilteredProducts(filtered);
+    }, [products, search, category, brand, selectedBrands, selectedCategories, selectedSeries, selectedYears, priceRange, sortBy]);
+
+    const clearFilters = () => {
+        setSelectedBrands([]);
+        setSelectedCategories([]);
+        setSelectedSeries([]);
+        setSelectedYears([]);
+        setPriceRange({ min: '', max: '' });
+        setSortBy('name');
+    };
+
+    const toggleBrand = (brand: string) => {
+        setSelectedBrands(prev =>
+            prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
         );
     };
 
-    // Function to apply all filters
-    const applyFilters = () => {
-        let cars = products;
+    const toggleCategory = (cat: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+        );
+    };
 
-        // Apply category filter
-        if (filter !== 'all') {
-            cars = cars.filter((car: HotWheelsCar) => car.category === filter);
+    const toggleSeries = (ser: string) => {
+        setSelectedSeries(prev =>
+            prev.includes(ser) ? prev.filter(s => s !== ser) : [...prev, ser]
+        );
+    };
+
+    const toggleYear = (year: string) => {
+        setSelectedYears(prev =>
+            prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]
+        );
+    };
+
+    const handleAddToCart = (product: HotWheelsCar) => {
+        addToCart({
+            ...product,
+            quantity: 1
+        });
+    };
+
+    const handleToggleFavorite = (product: HotWheelsCar) => {
+        if (isFavorite(product.id)) {
+            removeFromFavorites(product.id);
+        } else {
+            addToFavorites(product);
         }
-
-        // Apply search filter
-        cars = filterCarsBySearch(cars, searchTerm);
-
-        setFilteredCars(cars);
-    };
-
-    // Handle search from URL params
-    useEffect(() => {
-        const urlSearchTerm = searchParams.get('search') || '';
-        setSearchTerm(urlSearchTerm);
-    }, [searchParams]);
-
-    // Apply filters whenever filter or searchTerm changes
-    useEffect(() => {
-        applyFilters();
-    }, [filter, searchTerm]);
-
-    const handleFilterChange = (newFilter: string) => {
-        setFilter(newFilter);
-    };
-
-    const handleAddToCart = (car: HotWheelsCar) => {
-        addToCart({ ...car, quantity: 1 });
-        alert(`${car.name} adicionado ao carrinho!`);
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-hotwheel-gray-25 flex items-center justify-center">
-                <div className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 p-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-hotwheel-primary mx-auto"></div>
-                    <p className="text-hotwheel-gray-600 mt-4 text-center">Carregando produtos...</p>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Carregando catálogo...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">Erro ao carregar catálogo: {error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                        Tentar novamente
+                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-hotwheel-gray-25">
-            <div className="container mx-auto px-4 section-padding">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-corporate mb-4">
-                        {searchTerm ? `Resultados para "${searchTerm}"` : 'Catálogo Completo'}
+        <div className="min-h-screen bg-gray-50">
+            <div className="container mx-auto px-4 py-6">
+                {/* Header */}
+                <div className="mb-4">
+                    <h1 className="text-xl font-bold text-gray-900 mb-1">
+                        {search ? `Resultados para "${search}"` :
+                            category ? `Categoria: ${category}` :
+                                brand ? `Marca: ${brand.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` : 'Catálogo de Produtos'}
                     </h1>
-                    <p className="text-subtitle text-lg max-w-2xl mx-auto">
-                        {searchTerm
-                            ? `Encontramos ${filteredCars.length} produto${filteredCars.length !== 1 ? 's' : ''} para sua busca.`
-                            : 'Explore nossa coleção exclusiva de Hot Wheels raros e colecionáveis, cuidadosamente selecionados para entusiastas e colecionadores.'
-                        }
+                    <p className="text-gray-600 text-xs">
+                        {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
                     </p>
                 </div>
 
-                {/* Search Info */}
-                {searchTerm && (
-                    <div className="mb-8">
-                        <div className="bg-hotwheel-primary/10 border border-hotwheel-primary/20 rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                                <p className="text-hotwheel-primary font-medium">
-                                    Buscando por: "{searchTerm}"
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Filters Sidebar */}
+                    <div className="lg:w-60">
+                        <div className="bg-white rounded border border-gray-200 p-3">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-semibold text-gray-900 text-sm">Filtros</h3>
+                                <button
+                                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                    className="lg:hidden p-1 text-gray-500 hover:text-gray-700"
+                                >
+                                    {isFilterOpen ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
+                                </button>
+                            </div>
+
+                            <div className={`lg:block ${isFilterOpen ? 'block' : 'hidden'}`}>
+                                {/* Sort */}
+                                <div className="mb-3">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Ordenar por</label>
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="w-full p-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                                    >
+                                        <option value="name">Nome A-Z</option>
+                                        <option value="price-low">Menor Preço</option>
+                                        <option value="price-high">Maior Preço</option>
+                                        <option value="year-new">Ano Mais Recente</option>
+                                        <option value="year-old">Ano Mais Antigo</option>
+                                    </select>
+                                </div>
+
+                                {/* Brands */}
+                                <div className="mb-3">
+                                    <h4 className="font-medium text-gray-900 mb-1 text-xs">Marcas</h4>
+                                    <div className="space-y-0.5 max-h-28 overflow-y-auto">
+                                        {brands.map((brand) => (
+                                            <label key={brand} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedBrands.includes(brand)}
+                                                    onChange={() => toggleBrand(brand)}
+                                                    className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-3 h-3"
+                                                />
+                                                <span className="ml-1.5 text-xs text-gray-700">{brand}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Categories - only show if there are categories to show */}
+                                {categories.length > 0 && (
+                                    <div className="mb-3">
+                                        <h4 className="font-medium text-gray-900 mb-1 text-xs">Categorias</h4>
+                                        <div className="space-y-0.5">
+                                            {categories.map((cat) => (
+                                                <label key={cat} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedCategories.includes(cat)}
+                                                        onChange={() => toggleCategory(cat)}
+                                                        className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-3 h-3"
+                                                    />
+                                                    <span className="ml-1.5 text-xs text-gray-700">{cat}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Series */}
+                                <div className="mb-3">
+                                    <h4 className="font-medium text-gray-900 mb-1 text-xs">Séries</h4>
+                                    <div className="space-y-0.5 max-h-28 overflow-y-auto">
+                                        {series.map((ser) => (
+                                            <label key={ser} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedSeries.includes(ser)}
+                                                    onChange={() => toggleSeries(ser)}
+                                                    className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-3 h-3"
+                                                />
+                                                <span className="ml-1.5 text-xs text-gray-700">{ser}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Years */}
+                                <div className="mb-3">
+                                    <h4 className="font-medium text-gray-900 mb-1 text-xs">Anos</h4>
+                                    <div className="space-y-0.5 max-h-28 overflow-y-auto">
+                                        {years.map((year) => (
+                                            <label key={year} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedYears.includes(year)}
+                                                    onChange={() => toggleYear(year)}
+                                                    className="rounded border-gray-300 text-red-600 focus:ring-red-500 w-3 h-3"
+                                                />
+                                                <span className="ml-1.5 text-xs text-gray-700">{year}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Price Range */}
+                                <div className="mb-3">
+                                    <h4 className="font-medium text-gray-900 mb-1 text-xs">Faixa de Preço</h4>
+                                    <div className="space-y-1.5">
+                                        <input
+                                            type="number"
+                                            placeholder="Preço mínimo"
+                                            value={priceRange.min}
+                                            onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                                            className="w-full p-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Preço máximo"
+                                            value={priceRange.max}
+                                            onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                                            className="w-full p-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Clear Filters */}
+                                <button
+                                    onClick={clearFilters}
+                                    className="w-full bg-gray-100 text-gray-700 py-1.5 rounded text-xs font-medium hover:bg-gray-200 transition-colors"
+                                >
+                                    Limpar Filtros
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Products Grid */}
+                    <div className="flex-1">
+                        {filteredProducts.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {filteredProducts.map((product) => (
+                                    <div key={product.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                                        {/* Image Container */}
+                                        <div className="relative aspect-square">
+                                            <Link to={`/produto/${product.id}`}>
+                                                <img
+                                                    src={product.image || '/placeholder-car.svg'}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-contain p-3 cursor-pointer group-hover:scale-105 transition-transform duration-300"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = '/placeholder-car.svg';
+                                                    }}
+                                                />
+                                            </Link>
+                                            <button
+                                                onClick={() => handleToggleFavorite(product)}
+                                                className={`absolute top-3 right-3 p-2 bg-white rounded-full shadow-md transition-colors ${isFavorite(product.id)
+                                                    ? 'text-red-500 hover:text-red-600'
+                                                    : 'text-gray-400 hover:text-red-500'
+                                                    }`}
+                                                title={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                                            >
+                                                <Heart
+                                                    className="w-4 h-4"
+                                                    fill={isFavorite(product.id) ? 'currentColor' : 'none'}
+                                                />
+                                            </button>
+                                            {product.originalPrice && (
+                                                <div className="absolute top-3 left-3">
+                                                    <span className="bg-red-600 text-white px-2 py-1 rounded-md text-xs font-semibold shadow-md">
+                                                        OFERTA
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {product.rarity && product.rarity !== 'Comum' && (
+                                                <div className="absolute bottom-3 left-3">
+                                                    <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-semibold shadow-md">
+                                                        {product.rarity}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Content Container */}
+                                        <div className="p-3">
+                                            {/* Product Name */}
+                                            <Link to={`/produto/${product.id}`}>
+                                                <h3 className="font-semibold text-gray-900 mb-1.5 text-center line-clamp-2 hover:text-red-600 transition-colors cursor-pointer text-sm">
+                                                    {product.name}
+                                                </h3>
+                                            </Link>
+
+                                            {/* Brand Badge */}
+                                            <div className="flex justify-center mb-2">
+                                                <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
+                                                    {product.brand}
+                                                </span>
+                                            </div>
+
+                                            {/* Price Section */}
+                                            <div className="text-center mb-3">
+                                                <div className="text-xl font-bold text-gray-900 mb-0.5">
+                                                    R$ {product.price.toFixed(2).replace('.', ',')}
+                                                </div>
+                                                {product.originalPrice && (
+                                                    <div className="text-xs text-gray-500 line-through mb-0.5">
+                                                        R$ {product.originalPrice.toFixed(2).replace('.', ',')}
+                                                    </div>
+                                                )}
+                                                <div className="text-xs text-cyan-600 font-medium">
+                                                    até 12x de R$ {(product.price / 12).toFixed(2).replace('.', ',')}
+                                                </div>
+                                                <div className="text-xs text-cyan-600">
+                                                    ou R$ {(product.price * 0.95).toFixed(2).replace('.', ',')} via Pix
+                                                </div>
+                                            </div>
+
+                                            {/* Stock Status */}
+                                            <div className="text-center mb-2">
+                                                {product.inStock ? (
+                                                    <span className="text-green-600 text-xs font-medium">Em estoque</span>
+                                                ) : (
+                                                    <span className="text-red-600 text-xs font-medium">Esgotado</span>
+                                                )}
+                                            </div>
+
+                                            {/* Add to Cart Button */}
+                                            <button
+                                                onClick={() => handleAddToCart(product)}
+                                                disabled={!product.inStock}
+                                                className="w-full bg-red-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-xs"
+                                            >
+                                                {product.inStock ? 'Adicionar ao Carrinho' : 'Produto Esgotado'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <div className="text-gray-400 mb-4">
+                                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum produto encontrado</h3>
+                                <p className="text-gray-600 text-sm">
+                                    Tente ajustar os filtros ou fazer uma nova busca.
                                 </p>
-                                <Link
-                                    to="/catalogo"
-                                    className="text-hotwheel-primary hover:text-hotwheel-primary/80 text-sm font-medium"
-                                >
-                                    Limpar busca
-                                </Link>
                             </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Filters */}
-                <div className="mb-12">
-                    <div className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 p-6">
-                        <h3 className="text-lg font-semibold text-corporate mb-4">Filtrar por Categoria</h3>
-                        <div className="flex flex-wrap gap-3">
-                            <button
-                                onClick={() => handleFilterChange('all')}
-                                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === 'all'
-                                    ? 'bg-hotwheel-primary text-white shadow-lg'
-                                    : 'bg-hotwheel-gray-100 text-hotwheel-gray-700 hover:bg-hotwheel-gray-200'
-                                    }`}
-                            >
-                                Todos os Produtos
-                            </button>
-                            <button
-                                onClick={() => handleFilterChange('Mainline')}
-                                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === 'Mainline'
-                                    ? 'bg-hotwheel-primary text-white shadow-lg'
-                                    : 'bg-hotwheel-gray-100 text-hotwheel-gray-700 hover:bg-hotwheel-gray-200'
-                                    }`}
-                            >
-                                Mainline
-                            </button>
-                            <button
-                                onClick={() => handleFilterChange('Premium')}
-                                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === 'Premium'
-                                    ? 'bg-hotwheel-primary text-white shadow-lg'
-                                    : 'bg-hotwheel-gray-100 text-hotwheel-gray-700 hover:bg-hotwheel-gray-200'
-                                    }`}
-                            >
-                                Premium
-                            </button>
-                            <button
-                                onClick={() => handleFilterChange('Super Treasure Hunt')}
-                                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === 'Super Treasure Hunt'
-                                    ? 'bg-hotwheel-primary text-white shadow-lg'
-                                    : 'bg-hotwheel-gray-100 text-hotwheel-gray-700 hover:bg-hotwheel-gray-200'
-                                    }`}
-                            >
-                                Super TH
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
-
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {filteredCars.map((car) => (
-                        <div key={car.id} className="card-corporate overflow-hidden card-hover">
-                            <div className="relative">
-                                <img
-                                    src={car.image}
-                                    alt={car.name}
-                                    className="w-full h-56 object-cover"
-                                />
-                                <div className="absolute top-4 left-4">
-                                    <span className="bg-hotwheel-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                                        {car.rarity}
-                                    </span>
-                                </div>
-                                {car.originalPrice && (
-                                    <div className="absolute top-4 right-4">
-                                        <span className="bg-hotwheel-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                                            OFERTA
-                                        </span>
-                                    </div>
-                                )}
-                                {!car.inStock && (
-                                    <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-                                        <span className="text-white font-bold text-lg bg-hotwheel-gray-800 px-4 py-2 rounded-lg">Esgotado</span>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="p-6">
-                                <h3 className="font-bold text-lg mb-2 text-corporate line-clamp-1">{car.name}</h3>
-                                <p className="text-subtitle text-sm mb-4 font-medium">{car.series} • {car.year}</p>
-                                <div className="flex items-center justify-between mb-6">
-                                    <div>
-                                        {car.originalPrice && (
-                                            <span className="text-hotwheel-gray-400 line-through text-sm mr-2">
-                                                R$ {car.originalPrice.toFixed(2)}
-                                            </span>
-                                        )}
-                                        <span className="text-xl font-bold text-hotwheel-primary">
-                                            R$ {car.price.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-3">
-                                    <Link
-                                        to={`/produto/${car.id}`}
-                                        className="flex-1 btn-secondary text-sm text-center"
-                                    >
-                                        Ver Detalhes
-                                    </Link>
-                                    <button
-                                        onClick={() => handleAddToCart(car)}
-                                        disabled={!car.inStock}
-                                        className="flex-1 btn-primary text-sm disabled:bg-hotwheel-gray-400 disabled:cursor-not-allowed disabled:hover:shadow-none"
-                                    >
-                                        {car.inStock ? 'Adicionar' : 'Esgotado'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {filteredCars.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 p-12 max-w-md mx-auto">
-                            <div className="w-16 h-16 bg-hotwheel-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span className="text-3xl">🔍</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-corporate mb-4">Nenhum produto encontrado</h3>
-                            <p className="text-hotwheel-gray-500 mb-6">
-                                {searchTerm
-                                    ? `Não encontramos produtos que correspondam à sua busca "${searchTerm}".`
-                                    : 'Nenhum produto encontrado com os filtros selecionados.'
-                                }
-                            </p>
-                            {searchTerm && (
-                                <Link
-                                    to="/catalogo"
-                                    className="btn-primary inline-block"
-                                >
-                                    Ver todos os produtos
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

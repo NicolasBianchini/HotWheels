@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProducts } from '../contexts/ProductsContext';
@@ -7,14 +6,12 @@ import { Package, Plus, Edit, TrendingUp, DollarSign, BarChart3 } from 'lucide-r
 const Admin = () => {
     const { user } = useAuth();
     const { products, loading } = useProducts();
-    const [stats] = useState({
-        totalProducts: products.length,
-        inStock: products.filter(p => p.inStock).length,
-        outOfStock: products.filter(p => !p.inStock).length,
-        totalValue: products.reduce((sum, p) => sum + p.price, 0),
-        averagePrice: products.length > 0 ? products.reduce((sum, p) => sum + p.price, 0) / products.length : 0,
-        featuredProducts: products.filter(p => p.featured).length
-    });
+    const inStockCount = products.filter(p => typeof p.stock === 'number' && p.stock > 0).length;
+    const outOfStockCount = products.filter(p => typeof p.stock === 'number' && p.stock <= 0).length;
+    const totalProducts = products.length;
+    const totalValue = products.reduce((sum, p) => sum + (typeof p.price === 'number' ? p.price : 0), 0);
+    const averagePrice = products.length > 0 ? totalValue / products.length : 0;
+    const featuredProducts = products.filter(p => p.featured).length;
 
     if (loading) {
         return (
@@ -92,13 +89,13 @@ const Admin = () => {
                             <h3 className="text-lg font-semibold text-corporate">Total de Produtos</h3>
                             <Package className="w-6 h-6 text-hotwheel-primary" />
                         </div>
-                        <p className="text-3xl font-bold text-hotwheel-primary mb-2">{stats.totalProducts}</p>
+                        <p className="text-3xl font-bold text-hotwheel-primary mb-2">{totalProducts}</p>
                         <div className="flex items-center space-x-4 text-sm">
                             <span className="text-green-600">
-                                {stats.inStock} em estoque
+                                {inStockCount} em estoque
                             </span>
                             <span className="text-red-600">
-                                {stats.outOfStock} esgotados
+                                {outOfStockCount} esgotados
                             </span>
                         </div>
                     </div>
@@ -109,10 +106,10 @@ const Admin = () => {
                             <DollarSign className="w-6 h-6 text-hotwheel-primary" />
                         </div>
                         <p className="text-3xl font-bold text-hotwheel-primary mb-2">
-                            R$ {stats.totalValue.toFixed(2)}
+                            R$ {totalValue.toFixed(2)}
                         </p>
                         <p className="text-sm text-subtitle">
-                            Média: R$ {stats.averagePrice.toFixed(2)}
+                            Média: R$ {averagePrice.toFixed(2)}
                         </p>
                     </div>
 
@@ -121,9 +118,9 @@ const Admin = () => {
                             <h3 className="text-lg font-semibold text-corporate">Produtos em Destaque</h3>
                             <TrendingUp className="w-6 h-6 text-hotwheel-primary" />
                         </div>
-                        <p className="text-3xl font-bold text-hotwheel-primary mb-2">{stats.featuredProducts}</p>
+                        <p className="text-3xl font-bold text-hotwheel-primary mb-2">{featuredProducts}</p>
                         <p className="text-sm text-subtitle">
-                            {((stats.featuredProducts / stats.totalProducts) * 100).toFixed(1)}% do catálogo
+                            {((featuredProducts / totalProducts) * 100).toFixed(1)}% do catálogo
                         </p>
                     </div>
                 </div>
@@ -142,19 +139,25 @@ const Admin = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {products.slice(0, 4).map((product) => (
-                            <div key={product.id} className="border border-hotwheel-gray-200 rounded-lg p-4">
-                                <img
-                                    src={product.image}
-                                    alt={product.name}
-                                    className="w-full h-32 object-cover rounded-lg mb-3"
-                                />
+                            <div key={product.id} className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 overflow-hidden">
+                                {product.image ? (
+                                    <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        className="w-full h-32 object-cover rounded-lg mb-3"
+                                    />
+                                ) : (
+                                    <div className="w-full h-32 bg-hotwheel-gray-100 flex items-center justify-center rounded-lg mb-3 text-hotwheel-gray-400">
+                                        Sem imagem
+                                    </div>
+                                )}
                                 <h4 className="font-semibold text-corporate text-sm mb-1 line-clamp-1">
                                     {product.name}
                                 </h4>
                                 <p className="text-xs text-subtitle mb-2">{product.series}</p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-hotwheel-primary font-bold">
-                                        R$ {product.price.toFixed(2)}
+                                        R$ {typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}
                                     </span>
                                     <Link
                                         to={`/admin/produtos/${product.id}/editar`}

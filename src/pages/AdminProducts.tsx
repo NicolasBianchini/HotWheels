@@ -12,9 +12,9 @@ const AdminProducts = () => {
 
     // Filter products based on search and filters
     const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.series.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (product.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (product.series || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (product.category || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
         const matchesStock = stockFilter === 'all' ||
@@ -136,11 +136,17 @@ const AdminProducts = () => {
                         {filteredProducts.map((product) => (
                             <div key={product.id} className="bg-white rounded-xl shadow-sm border border-hotwheel-gray-200 overflow-hidden">
                                 <div className="relative">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="w-full h-48 object-cover"
-                                    />
+                                    {product.image ? (
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="w-full h-48 object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-48 bg-hotwheel-gray-100 flex items-center justify-center text-hotwheel-gray-400">
+                                            Sem imagem
+                                        </div>
+                                    )}
                                     <div className="absolute top-3 left-3">
                                         <span className="bg-hotwheel-primary text-white px-2 py-1 rounded-full text-xs font-semibold">
                                             {product.rarity}
@@ -166,13 +172,13 @@ const AdminProducts = () => {
 
                                     <div className="flex items-center justify-between mb-6">
                                         <div>
-                                            {product.originalPrice && (
+                                            {product.originalPrice && typeof product.originalPrice === 'number' ? (
                                                 <span className="text-hotwheel-gray-400 line-through text-sm mr-2">
                                                     R$ {product.originalPrice.toFixed(2)}
                                                 </span>
-                                            )}
+                                            ) : null}
                                             <span className="text-xl font-bold text-hotwheel-primary">
-                                                R$ {product.price.toFixed(2)}
+                                                R$ {typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}
                                             </span>
                                         </div>
                                         {product.featured && (
