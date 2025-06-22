@@ -1,4 +1,4 @@
-import { CreditCard, Smartphone, FileText, Truck, Package, Shield, Clock, MapPin } from 'lucide-react';
+import { CreditCard, Smartphone, Truck, Package, Shield, Clock, MapPin } from 'lucide-react';
 
 const Payment = () => {
     return (
@@ -66,21 +66,6 @@ const Payment = () => {
                                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                     <p className="text-purple-700 font-medium text-sm">✓ À vista com desconto</p>
                                     <p className="text-purple-700 font-medium text-sm">✓ Aprovação rápida</p>
-                                </div>
-                            </div>
-
-                            {/* Boleto */}
-                            <div className="card-corporate p-6 text-center">
-                                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <FileText className="w-8 h-8 text-orange-600" />
-                                </div>
-                                <h3 className="font-bold text-lg mb-3 text-corporate">Boleto Bancário</h3>
-                                <p className="text-subtitle text-sm mb-4">
-                                    Pague em qualquer banco ou app
-                                </p>
-                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                    <p className="text-orange-700 font-medium text-sm">✓ Vencimento em 3 dias</p>
-                                    <p className="text-orange-700 font-medium text-sm">✓ Sem necessidade de cartão</p>
                                 </div>
                             </div>
                         </div>
@@ -170,36 +155,6 @@ const Payment = () => {
                                 </div>
                                 <div className="mt-6 p-4 bg-red-50 rounded-lg">
                                     <p className="text-red-700 font-medium text-sm">A partir de R$ 25,00</p>
-                                </div>
-                            </div>
-
-                            {/* Retirada Local */}
-                            <div className="card-corporate p-8">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                                        <MapPin className="w-6 h-6 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-xl text-corporate">Retirada Local</h3>
-                                        <p className="text-subtitle">Retire pessoalmente</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-green-600" />
-                                        <span className="text-sm text-subtitle">Imediato após confirmação</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="w-4 h-4 text-green-600" />
-                                        <span className="text-sm text-subtitle">Porto Alegre - RS</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Shield className="w-4 h-4 text-green-600" />
-                                        <span className="text-sm text-subtitle">Sem custo de frete</span>
-                                    </div>
-                                </div>
-                                <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                                    <p className="text-green-700 font-medium text-sm">GRÁTIS</p>
                                 </div>
                             </div>
                         </div>

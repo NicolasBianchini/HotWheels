@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
+import RafaLogo from '../assets/logo.png';
 
 const Footer = () => {
     return (
@@ -9,8 +10,8 @@ const Footer = () => {
                     {/* Sobre a Empresa */}
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
-                            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-800 rounded flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">HW</span>
+                            <div className="w-10 h-10 bg-gradient-to-br">
+                                <img src={RafaLogo} alt="Logo" className="w-10 h-10" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-white">Hot Wheels Rafis</h3>
@@ -23,17 +24,13 @@ const Footer = () => {
                             Autenticidade e qualidade garantidas.
                         </p>
                         <div className="flex space-x-3">
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                            <a href="https://www.instagram.com/hotwheels.rafis/" target="_blank" rel="noopener noreferrer"
                                 className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded flex items-center justify-center transition-colors">
                                 <Instagram className="w-4 h-4" />
                             </a>
                             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
                                 className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded flex items-center justify-center transition-colors">
                                 <Facebook className="w-4 h-4" />
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
-                                className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded flex items-center justify-center transition-colors">
-                                <Twitter className="w-4 h-4" />
                             </a>
                         </div>
                     </div>

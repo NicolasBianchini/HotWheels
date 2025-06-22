@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useNavigate } from 'react-router-dom';
 
+import RafaLogo from '../assets/logo.png';
+
 interface HeaderProps {
     cartCount: number;
 }
@@ -66,20 +68,9 @@ const Header = ({ cartCount }: HeaderProps) => {
     const brands = [
         { name: 'Hot Wheels', path: '/catalogo?marca=hot-wheels' },
         { name: 'Mini GT', path: '/catalogo?marca=mini-gt' },
-        { name: 'Auto World', path: '/catalogo?marca=auto-world' },
-        { name: 'Tarmac Works', path: '/catalogo?marca=tarmac-works' },
-        { name: 'Auto Art', path: '/catalogo?marca=auto-art' },
-        { name: 'Jada', path: '/catalogo?marca=jada' },
-        { name: 'Burago', path: '/catalogo?marca=burago' },
-        { name: 'Almost Real', path: '/catalogo?marca=almost-real' },
-        { name: 'Pop Race', path: '/catalogo?marca=pop-race' },
-        { name: 'Tiny', path: '/catalogo?marca=tiny' },
-        { name: 'Inno 64', path: '/catalogo?marca=inno-64' },
-        { name: 'Kaido House', path: '/catalogo?marca=kaido-house' },
-        { name: 'Mijo Exclusive', path: '/catalogo?marca=mijo' },
-        { name: 'GCD', path: '/catalogo?marca=gcd' },
-        { name: 'CM Model', path: '/catalogo?marca=cm-model' },
-        { name: 'Norev', path: '/catalogo?marca=norev' }
+        { name: 'Majorette', path: '/catalogo?marca=majorette' },
+        { name: 'Matchbox', path: '/catalogo?marca=matchbox' },
+        { name: 'Tarmac', path: '/catalogo?marca=tarmac' },
     ];
 
     return (
@@ -90,8 +81,8 @@ const Header = ({ cartCount }: HeaderProps) => {
                     <div className="flex items-center justify-between">
                         {/* Logo */}
                         <Link to="/" className="flex items-center space-x-2">
-                            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-800 rounded flex items-center justify-center shadow">
-                                <span className="text-white font-bold text-sm">HW</span>
+                            <div className="w-10 h-10 bg-gradient-to-br">
+                                <img src={RafaLogo} alt="Logo" className="w-10 h-10" />
                             </div>
                             <div className="hidden md:block">
                                 <h1 className="font-bold text-xl text-gray-900">Hot Wheels Marketplace</h1>
@@ -259,9 +250,6 @@ const Header = ({ cartCount }: HeaderProps) => {
                         </div>
                         <Link to="/catalogo?categoria=promocoes" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
                             Promoções
-                        </Link>
-                        <Link to="/catalogo?categoria=bazar" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
-                            Bazar
                         </Link>
                     </nav>
                 </div>
