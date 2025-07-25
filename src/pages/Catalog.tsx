@@ -179,7 +179,7 @@ const Catalog = ({ addToCart }: CatalogProps) => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-100">
             <div className="container mx-auto px-4 py-6">
                 {/* Header */}
                 <div className="mb-4">

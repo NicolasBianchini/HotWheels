@@ -59,7 +59,7 @@ const Home = ({ addToCart }: HomeProps) => {
         <div className="min-h-screen">
 
             {/* Lançamentos Section - Grid mais compacto */}
-            <section className="bg-white min-h-screen">
+            <section className="bg-gray-50 min-h-screen">
                 < div className="container mx-auto px-4 py-6" >
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-1">Lançamentos</h2>

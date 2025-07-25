@@ -26,7 +26,7 @@ const Contact = () => {
     };
 
     return (
-        <div className="min-h-screen bg-hotwheel-gray-25">
+        <div className="min-h-screen bg-gray-100">
             <div className="container mx-auto px-4 section-padding">
                 <div className="max-w-6xl mx-auto">
                     {/* Hero Section */}

@@ -1,7 +1,7 @@
 export interface HotWheelsCar {
     id: string;
     name: string;
-    brand: 'Hot Wheels' | 'Mini GT' | 'Auto World' | 'Tarmac Works' | 'Auto Art' | 'Jada' | 'Burago' | 'Almost Real' | 'Pop Race' | 'Tiny' | 'Inno 64';
+    brand: 'Hot Wheels' | 'Mini GT' | 'Majorette' | 'Matchbox' | 'Tarmac';
     series: string;
     year: number;
     price: number;

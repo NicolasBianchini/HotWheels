@@ -4,7 +4,7 @@ import RafaLogo from '../assets/logo.png';
 
 const Footer = () => {
     return (
-        <footer className="bg-slate-800 text-white">
+        <footer className="bg-gray-900 text-white">
             <div className="container mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Sobre a Empresa */}
@@ -25,11 +25,11 @@ const Footer = () => {
                         </p>
                         <div className="flex space-x-3">
                             <a href="https://www.instagram.com/hotwheels.rafis/" target="_blank" rel="noopener noreferrer"
-                                className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded flex items-center justify-center transition-colors">
+                                className="w-8 h-8 bg-gray-700 hover:bg-red-500 rounded flex items-center justify-center transition-colors">
                                 <Instagram className="w-4 h-4" />
                             </a>
                             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
-                                className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded flex items-center justify-center transition-colors">
+                                className="w-8 h-8 bg-gray-700 hover:bg-red-500 rounded flex items-center justify-center transition-colors">
                                 <Facebook className="w-4 h-4" />
                             </a>
                         </div>
@@ -153,7 +153,7 @@ const Footer = () => {
                 </div>
 
                 {/* Linha divisória */}
-                <div className="border-t border-gray-600 mt-8 pt-6">
+                <div className="border-t border-gray-700 mt-8 pt-6">
                     <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                         <p className="text-sm text-gray-400">
                             © 2025 Hot Wheels Rafis Collection. Todos os direitos reservados.

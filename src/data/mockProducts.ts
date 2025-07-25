@@ -59,11 +59,11 @@ export const mockProducts: HotWheelsCar[] = [
         rarity: 'Super Raro'
     },
 
-    // AUTO WORLD PRODUCTS
+    // MAJORETTE PRODUCTS
     {
         id: '4',
         name: 'Ford Mustang GT',
-        brand: 'Auto World',
+        brand: 'Majorette',
         series: 'American Classics',
         year: 2018,
         price: 125.90,
@@ -78,11 +78,11 @@ export const mockProducts: HotWheelsCar[] = [
         rarity: 'Comum'
     },
 
-    // TARMAC WORKS PRODUCTS
+    // TARMAC PRODUCTS
     {
         id: '5',
         name: 'Lamborghini Huracán',
-        brand: 'Tarmac Works',
+        brand: 'Tarmac',
         series: 'Supercars',
         year: 2021,
         price: 399.90,
@@ -97,17 +97,17 @@ export const mockProducts: HotWheelsCar[] = [
         rarity: 'Super Raro'
     },
 
-    // JADA PRODUCTS
+    // MATCHBOX PRODUCTS
     {
         id: '6',
         name: 'Volkswagen Beetle Classic',
-        brand: 'Jada',
+        brand: 'Matchbox',
         series: 'Classic Cars',
         year: 1970,
         price: 79.90,
         originalPrice: 99.90,
         image: 'https://images.unsplash.com/photo-1520031441872-265e4ff70366?w=400',
-        description: 'Fusca clássico da Jada com acabamento vintage autêntico.',
+        description: 'Fusca clássico da Matchbox com acabamento vintage autêntico.',
         condition: 'Novo',
         category: 'Mainline',
         color: 'Azul',
@@ -117,16 +117,16 @@ export const mockProducts: HotWheelsCar[] = [
         rarity: 'Comum'
     },
 
-    // AUTO ART PRODUCTS
+    // MINI GT PRODUCTS (segundo produto)
     {
         id: '7',
         name: 'McLaren P1',
-        brand: 'Auto Art',
+        brand: 'Mini GT',
         series: 'Hypercars',
         year: 2023,
         price: 599.90,
         image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
-        description: 'McLaren P1 da Auto Art com detalhes de motor e interior completo.',
+        description: 'McLaren P1 da Mini GT com detalhes de motor e interior completo.',
         condition: 'Novo',
         category: 'Premium',
         color: 'Prata',
@@ -136,11 +136,11 @@ export const mockProducts: HotWheelsCar[] = [
         rarity: 'Treasure Hunt'
     },
 
-    // BURAGO PRODUCTS
+    // HOT WHEELS PRODUCTS (segundo produto)
     {
         id: '8',
         name: 'Dodge Charger R/T',
-        brand: 'Burago',
+        brand: 'Hot Wheels',
         series: 'American Muscle',
         year: 2019,
         price: 159.90,

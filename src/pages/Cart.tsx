@@ -12,7 +12,7 @@ const Cart = ({ items, updateQuantity, removeItem }: CartProps) => {
 
     if (items.length === 0) {
         return (
-            <div className="min-h-screen bg-hotwheel-gray-25">
+            <div className="min-h-screen bg-gray-100">
                 <div className="container mx-auto px-4 section-padding">
                     <div className="text-center">
                         <div className="bg-white rounded-2xl shadow-sm border border-hotwheel-gray-200 p-12 max-w-md mx-auto">
@@ -35,7 +35,7 @@ const Cart = ({ items, updateQuantity, removeItem }: CartProps) => {
     }
 
     return (
-        <div className="min-h-screen bg-hotwheel-gray-25">
+        <div className="min-h-screen bg-gray-100">
             <div className="container mx-auto px-4 section-padding">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-corporate mb-4">Seu Carrinho</h1>

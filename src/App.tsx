@@ -99,7 +99,7 @@ function App() {
         <ProductsProvider>
           <FavoritesProvider>
             <Router>
-              <div className="min-h-screen bg-gray-50 flex flex-col">
+              <div className="min-h-screen bg-gray-100 flex flex-col">
                 <Header cartCount={cartCount} />
 
                 <main className="flex-1">

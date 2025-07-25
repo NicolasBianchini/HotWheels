@@ -131,15 +131,9 @@ const AdminProductEdit = () => {
                             >
                                 <option value="Hot Wheels">Hot Wheels</option>
                                 <option value="Mini GT">Mini GT</option>
-                                <option value="Auto World">Auto World</option>
-                                <option value="Tarmac Works">Tarmac Works</option>
-                                <option value="Auto Art">Auto Art</option>
-                                <option value="Jada">Jada</option>
-                                <option value="Burago">Burago</option>
-                                <option value="Almost Real">Almost Real</option>
-                                <option value="Pop Race">Pop Race</option>
-                                <option value="Tiny">Tiny</option>
-                                <option value="Inno 64">Inno 64</option>
+                                <option value="Majorette">Majorette</option>
+                                <option value="Matchbox">Matchbox</option>
+                                <option value="Tarmac">Tarmac</option>
                             </select>
                         </div>
                         <div>

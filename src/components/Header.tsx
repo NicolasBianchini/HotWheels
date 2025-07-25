@@ -74,7 +74,7 @@ const Header = ({ cartCount }: HeaderProps) => {
     ];
 
     return (
-        <header className="bg-white border-b border-gray-200">
+        <header className="bg-gray-900 border-b border-gray-700">
             {/* Main Header - Mais compacto */}
             <div className="container mx-auto px-4">
                 <div className="py-3">
@@ -85,8 +85,8 @@ const Header = ({ cartCount }: HeaderProps) => {
                                 <img src={RafaLogo} alt="Logo" className="w-10 h-10" />
                             </div>
                             <div className="hidden md:block">
-                                <h1 className="font-bold text-xl text-gray-900">Hot Wheels Marketplace</h1>
-                                <p className="text-xs text-gray-600">Miniaturas de Carros e Colecionáveis</p>
+                                <h1 className="font-bold text-xl text-white">Hot Wheels Marketplace</h1>
+                                <p className="text-xs text-gray-300">Miniaturas de Carros e Colecionáveis</p>
                             </div>
                         </Link>
 
@@ -100,7 +100,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                     value={searchTerm}
                                     onChange={handleSearchInputChange}
                                     onKeyPress={handleKeyPress}
-                                    className="w-full pl-8 pr-4 py-2 border border-gray-300 bg-white text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-500 transition-all duration-200 text-sm"
+                                    className="w-full pl-8 pr-4 py-2 border border-gray-600 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400 transition-all duration-200 text-sm"
                                 />
                             </form>
                         </div>
@@ -110,7 +110,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                             {/* Favorites */}
                             <Link
                                 to="/favoritos"
-                                className="relative p-1.5 text-gray-600 hover:text-red-600 transition-colors rounded hover:bg-gray-50"
+                                className="relative p-1.5 text-gray-300 hover:text-red-400 transition-colors rounded hover:bg-gray-700"
                                 title="Meus Favoritos"
                             >
                                 <Heart className="w-5 h-5" />
@@ -124,7 +124,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                             {/* Cart */}
                             <Link
                                 to="/carrinho"
-                                className="relative p-1.5 text-gray-600 hover:text-red-600 transition-colors rounded hover:bg-gray-50"
+                                className="relative p-1.5 text-gray-300 hover:text-red-400 transition-colors rounded hover:bg-gray-700"
                             >
                                 <ShoppingCart className="w-5 h-5" />
                                 {cartCount > 0 && (
@@ -139,7 +139,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                 <div className="relative" ref={userMenuRef}>
                                     <button
                                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                        className="flex items-center space-x-2 p-1.5 text-gray-700 hover:text-red-600 transition-colors rounded hover:bg-gray-50"
+                                        className="flex items-center space-x-2 p-1.5 text-gray-300 hover:text-red-400 transition-colors rounded hover:bg-gray-700"
                                     >
                                         {user.avatar ? (
                                             <img
@@ -152,7 +152,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                                 <User className="w-3 h-3 text-white" />
                                             </div>
                                         )}
-                                        <span className="hidden xl:block text-sm font-semibold">{user.name}</span>
+                                        <span className="hidden xl:block text-sm font-semibold text-white">{user.name}</span>
                                     </button>
 
                                     {/* User Dropdown */}
@@ -196,7 +196,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                 <div className="hidden lg:flex items-center space-x-2">
                                     <Link
                                         to="/login"
-                                        className="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-red-600 transition-colors"
+                                        className="px-3 py-1.5 text-sm font-semibold text-gray-300 hover:text-red-400 transition-colors"
                                     >
                                         Entrar
                                     </Link>
@@ -212,7 +212,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                             {/* Mobile Menu Button */}
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="lg:hidden p-1.5 text-gray-700 hover:text-red-600 transition-colors rounded hover:bg-gray-50"
+                                className="lg:hidden p-1.5 text-gray-300 hover:text-red-400 transition-colors rounded hover:bg-gray-700"
                             >
                                 <Menu className="w-5 h-5" />
                             </button>
@@ -221,12 +221,12 @@ const Header = ({ cartCount }: HeaderProps) => {
                 </div>
 
                 {/* Categories Navigation - Mais compacto */}
-                <div className="border-t border-gray-100 py-2">
+                <div className="border-t border-gray-700 py-2">
                     <nav className="flex items-center space-x-6 text-sm">
                         <div className="relative" ref={categoriesRef}>
                             <button
                                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                                className="flex items-center space-x-1 text-gray-700 hover:text-red-600 font-medium transition-colors"
+                                className="flex items-center space-x-1 text-gray-300 hover:text-red-400 font-medium transition-colors"
                             >
                                 <span>Miniaturas</span>
                                 <ChevronDown className="w-3 h-3" />
@@ -234,7 +234,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                             {isCategoriesOpen && (
                                 <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded shadow-xl border border-gray-200 z-50">
                                     <div className="py-1">
-                                        {brands.slice(0, 11).map((brand) => (
+                                        {brands.map((brand) => (
                                             <Link
                                                 key={brand.name}
                                                 to={brand.path}
@@ -248,7 +248,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                 </div>
                             )}
                         </div>
-                        <Link to="/catalogo?categoria=promocoes" className="text-gray-700 hover:text-red-600 font-medium transition-colors">
+                        <Link to="/catalogo?categoria=promocoes" className="text-gray-300 hover:text-red-400 font-medium transition-colors">
                             Promoções
                         </Link>
                     </nav>
@@ -256,7 +256,7 @@ const Header = ({ cartCount }: HeaderProps) => {
 
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className="lg:hidden border-t border-gray-100 py-3">
+                    <div className="lg:hidden border-t border-gray-700 py-3">
                         {/* Mobile Search */}
                         <div className="mb-3">
                             <form onSubmit={handleSearch} className="relative">
@@ -267,7 +267,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                                     value={searchTerm}
                                     onChange={handleSearchInputChange}
                                     onKeyPress={handleKeyPress}
-                                    className="w-full pl-8 pr-4 py-2 border border-gray-300 bg-white text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-500 transition-all duration-200 text-sm"
+                                    className="w-full pl-8 pr-4 py-2 border border-gray-600 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400 transition-all duration-200 text-sm"
                                 />
                             </form>
                         </div>
@@ -276,21 +276,21 @@ const Header = ({ cartCount }: HeaderProps) => {
                         <nav className="space-y-1 mb-3">
                             <Link
                                 to="/"
-                                className="block py-2 px-2 text-gray-700 hover:text-red-600 font-medium transition-colors rounded hover:bg-gray-50"
+                                className="block py-2 px-2 text-gray-300 hover:text-red-400 font-medium transition-colors rounded hover:bg-gray-700"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Início
                             </Link>
                             <Link
                                 to="/catalogo"
-                                className="block py-2 px-2 text-gray-700 hover:text-red-600 font-medium transition-colors rounded hover:bg-gray-50"
+                                className="block py-2 px-2 text-gray-300 hover:text-red-400 font-medium transition-colors rounded hover:bg-gray-700"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Catálogo
                             </Link>
                             <Link
                                 to="/sobre"
-                                className="block py-2 px-2 text-gray-700 hover:text-red-600 font-medium transition-colors rounded hover:bg-gray-50"
+                                className="block py-2 px-2 text-gray-300 hover:text-red-400 font-medium transition-colors rounded hover:bg-gray-700"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Sobre
@@ -299,10 +299,10 @@ const Header = ({ cartCount }: HeaderProps) => {
 
                         {/* Mobile Auth Links */}
                         {!user && (
-                            <div className="space-y-1 border-t border-gray-100 pt-3">
+                            <div className="space-y-1 border-t border-gray-700 pt-3">
                                 <Link
                                     to="/login"
-                                    className="block w-full text-center py-2 px-3 text-gray-700 hover:text-red-600 font-medium transition-colors rounded hover:bg-gray-50"
+                                    className="block w-full text-center py-2 px-3 text-gray-300 hover:text-red-400 font-medium transition-colors rounded hover:bg-gray-700"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
                                     Entrar

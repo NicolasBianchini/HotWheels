@@ -25,7 +25,7 @@ const Favorites = ({ addToCart }: FavoritesProps) => {
 
     if (favoritesCount === 0) {
         return (
-            <div className="min-h-screen bg-hotwheel-gray-25">
+            <div className="min-h-screen bg-gray-100">
                 <div className="container mx-auto px-4 section-padding">
                     <div className="max-w-4xl mx-auto">
                         {/* Header */}
@@ -60,7 +60,7 @@ const Favorites = ({ addToCart }: FavoritesProps) => {
     }
 
     return (
-        <div className="min-h-screen bg-hotwheel-gray-25">
+        <div className="min-h-screen bg-gray-100">
             <div className="container mx-auto px-4 section-padding">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
@@ -164,8 +164,8 @@ const Favorites = ({ addToCart }: FavoritesProps) => {
                                             onClick={() => handleAddToCart(product)}
                                             disabled={!product.inStock}
                                             className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all ${product.inStock
-                                                    ? 'bg-hotwheel-primary text-white hover:bg-hotwheel-red'
-                                                    : 'bg-hotwheel-gray-200 text-hotwheel-gray-500 cursor-not-allowed'
+                                                ? 'bg-hotwheel-primary text-white hover:bg-hotwheel-red'
+                                                : 'bg-hotwheel-gray-200 text-hotwheel-gray-500 cursor-not-allowed'
                                                 }`}
                                         >
                                             {product.inStock ? (
